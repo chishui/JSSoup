@@ -13,12 +13,12 @@ Such as `find_all()` in BeautifulSoup is replaced as `findAll()`.
 ----------------------------
 # How to use JSSoup
 ### Make Soup
-```
+```javascript
 var soup = JSSoup('<html><head>hello</head></html>');
 ```
 ### Navigation
 #### .previousElement, .nextElement
-```
+```javascript
 var data = `
 <div>
   <a>1</a>
@@ -34,7 +34,7 @@ var a = b.previousElement;
 // a.string: '1'
 ```
 #### .previousSibling, .nextSibling
-```
+```javascript
 var soup = JSSoup(data);
 var div = soup.nextElement;
 var a = div.nextElement;
@@ -43,42 +43,42 @@ var c = b.nextSibling;
 c.nextSibling == undefined;
 ```
 #### .contents
-```
+```javascript
 div.contents
 // [<a>1</a>, <b>2</b>, <c>3</c>]
 ```
 #### .descendants
-```
+```javascript
 div.descendants
 // [<a>1</a>, 1, <b>2</b>, 2, <c>3</c>, 3]
 ```
 #### .parent
-```
+```javascript
 div.parent == soup
 ```
 #### .getText(), .text
-```
+```javascript
 div.text
 // '123'
 div.getText('|')
 // '1|2|3'
 ```
 #### .string
-```
+```javascript
 b.string == '2';
 var soup = JSSoup('<html><head>hello</head></html>');
 soup.string == 'hello';
 ```
 ### Edit
 #### .extract()
-```
+```javascript
 b.extract();
 div.contents
 // [<a>1</a>, <b>2</b>, <c>3</c>]
 ```
 ### Search
 #### .findAll()
-```
+```javascript
 var data = `
 <div>
   <div class="h1"></div>
