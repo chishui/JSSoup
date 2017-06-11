@@ -203,3 +203,61 @@ describe('prev next', function() {
     done();
   });
 });
+
+//describe('*descendants', function() {
+  //it('should be OK', function(done) {
+    //var soup = new JSSoup(data);
+    //assert.equal(soup.descendants.length, 0);
+    //var cur = soup.nextElement;
+    //for (let i of soup.descendants()) {
+      //assert.equal(i, cur);
+      //cur = cur.nextElement;
+    //} 
+    //done();
+  //});
+
+  //it('should be OK', function(done) {
+    //var soup = new JSSoup('<div><a></a><b></b></div>');
+    //var a = soup.nextElement.nextElement;
+    //assert.equal(a.descendants.length, 0);
+    //done();
+  //});
+//});
+
+describe('descendants', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup(data);
+    assert.equal(soup.descendants.length, 21);
+    var cur = soup.nextElement;
+    for (let i of soup.descendants) {
+      assert.equal(i, cur);
+      cur = cur.nextElement;
+    } 
+    done();
+  });
+
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<div><a></a><b></b></div>');
+    var a = soup.nextElement.nextElement;
+    assert.equal(a.descendants.length, 0);
+    done();
+  });
+});
+
+describe('getText', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<a>1<b>2</b>3</a>');
+    assert.equal(soup.getText(), '123');
+    assert.equal(soup.getText('|'), '1|2|3');
+    assert.equal(soup.getText(), soup.text);
+    done();
+  });
+
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<div><a>1<b>2</b>3</a><c>4</c></div>');
+    assert.equal(soup.getText(), '1234');
+    assert.equal(soup.getText('|'), '1|2|3|4');
+    assert.equal(soup.getText(), soup.text);
+    done();
+  });
+});

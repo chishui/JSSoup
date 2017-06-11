@@ -1,11 +1,14 @@
 JSSoup
 =============================
-I'm a fan of Python library BeautifulSoup. It's feature-rich and very easily to use.  
-But when I am working on a small react-native project, and I tried to find a HTML parser library easily to use 
+I'm a fan of Python library BeautifulSoup. It's feature-rich and very easy to use. But when I am working on a small react-native project, and I tried to find a HTML parser library 
 like BeautifulSoup, I failed.  
 So I want to write a HTML parser library which can be so easy to use just like BeautifulSoup in Javascript.  
-JSSoup uses [tautologistics/node-htmlparser](https://github.com/tautologistics/node-htmlparser) as HTML dom parser, 
+**JSSoup** uses [tautologistics/node-htmlparser](https://github.com/tautologistics/node-htmlparser) as HTML dom parser, 
 and creates a series of BeautifulSoup like API on top of it.  
+# Naming Style
+JSSoup tries to use the same interfaces as BeautifulSoup so BeautifulSoup user can use JSSoup seamlessly. 
+However, JSSoup uses Javascript's camelCase naming style instead of Python's underscore naming style.
+Such as `find_all()` in BeautifulSoup is replaced as `findAll()`.
 
 ----------------------------
 # How to use JSSoup
@@ -44,9 +47,21 @@ c.nextSibling == undefined;
 div.contents
 // [<a>1</a>, <b>2</b>, <c>3</c>]
 ```
+#### .descendants
+```
+div.descendants
+// [<a>1</a>, 1, <b>2</b>, 2, <c>3</c>, 3]
+```
 #### .parent
 ```
 div.parent == soup
+```
+#### .getText(), .text
+```
+div.text
+// '123'
+div.getText('|')
+// '1|2|3'
 ```
 #### .string
 ```
