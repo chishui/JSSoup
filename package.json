@@ -1,9 +1,12 @@
 {
   "name": "jssoup",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "JSSoup is a BeautifulSopu style HTML parser library.",
   "main": "./dist/lib/jssoup.js",
-  "files": ["./dist"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "test": "mocha --compilers js:babel-core/register",
     "init": "mkdir dist && mkdir dist/lib",

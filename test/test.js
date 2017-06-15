@@ -144,23 +144,13 @@ describe('extract', function() {
 });
 
 describe('findAll', function() {
-  it('should find all for simple data', function(done) {
+  it('should find all elements', function(done) {
     var soup = new JSSoup('<a>hello</a>');
     var ret = soup.findAll();
-    assert.equal(ret.length, 2);
-    ret = soup.findAll('a');
     assert.equal(ret.length, 1);
-    assert.equal(ret[0].name, 'a');
-    ret = soup.findAll('b');
-    assert.equal(ret.length, 0); 
-    done();
-  });
-
-  it('should find all for big data', function(done) {
-    var soup = new JSSoup(data);
-    var ret = soup.findAll();
-    // has one root element
-    assert.equal(ret.length, 12);
+    soup = new JSSoup(data);
+    ret = soup.findAll();
+    assert.equal(ret.length, 11);
     ret = soup.findAll('a');
     assert.equal(ret.length, 3);
     ret = soup.findAll('p');
@@ -171,6 +161,39 @@ describe('findAll', function() {
     assert.equal(ret.length, 1);
     ret = soup.findAll('');
     assert.equal(ret.length, 0);
+    done();
+  });
+
+  it('should be OK with only name as argument', function(done) {
+    var soup = new JSSoup('<a>hello</a>');
+    var ret = soup.findAll('a');
+    assert.equal(ret.length, 1);
+    assert.equal(ret[0].name, 'a');
+    ret = soup.findAll('b');
+    assert.equal(ret.length, 0); 
+    done();
+  });
+
+  it('should be OK with only string as argument', function(done) {
+    var soup = new JSSoup('<a>hello</a>');
+    var ret = soup.findAll(undefined, undefined, 'hello');
+    assert.equal(ret.length, 1);
+    assert.equal(ret[0].constructor.name, 'SoupString');
+
+    ret = soup.findAll('a', undefined, 'hello');
+    assert.equal(ret.length, 1);
+    assert.equal(ret[0].string, 'hello');
+    assert.equal(ret[0].name, 'a');
+
+    soup = new JSSoup(data);
+    ret = soup.findAll(undefined, undefined, '...');
+    assert.equal(ret.length, 1);
+    assert.equal(ret[0], '...');
+
+    ret = soup.findAll('p', undefined, '...');
+    assert.equal(ret.length, 1);
+    assert.equal(ret[0].name, 'p');
+    assert.equal(ret[0].string, '...');
     done();
   });
 
@@ -258,6 +281,28 @@ describe('getText', function() {
     assert.equal(soup.getText(), '1234');
     assert.equal(soup.getText('|'), '1|2|3|4');
     assert.equal(soup.getText(), soup.text);
+    done();
+  });
+});
+
+describe('prettify', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<a>1<b>2</b>3</a>');
+    assert.equal(soup.nextElement.prettify(), '<a>\n 1\n <b>\n  2\n </b>\n 3\n</a>');
+    done();
+  });
+
+  it('should be OK with attributes', function(done) {
+    var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
+    assert.equal(soup.nextElement.prettify(), '<a class="h1 h2" id="h3 h4">\n 1\n <b>\n  2\n </b>\n 3\n</a>');
+    done();
+  });
+
+  it('should be OK with indent argument', function(done) {
+    var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
+    assert.equal(soup.nextElement.prettify('', ''), '<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
+    assert.equal(soup.nextElement.prettify('\t', ''), '<a class="h1 h2" id="h3 h4">\t1\t<b>\t\t2\t</b>\t3</a>');
+    assert.equal(soup.nextElement.prettify('\t', ' '), '<a class="h1 h2" id="h3 h4"> \t1 \t<b> \t\t2 \t</b> \t3 </a>');
     done();
   });
 });

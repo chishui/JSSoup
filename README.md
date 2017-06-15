@@ -5,16 +5,27 @@ like BeautifulSoup, I failed.
 So I want to write a HTML parser library which can be so easy to use just like BeautifulSoup in Javascript.  
 **JSSoup** uses [tautologistics/node-htmlparser](https://github.com/tautologistics/node-htmlparser) as HTML dom parser, 
 and creates a series of BeautifulSoup like API on top of it.  
+JSSoup supports both **node** and **react-native**.  
+
+[![Build Status](https://travis-ci.org/chishui/JSSoup.svg?branch=master)](https://travis-ci.org/chishui/JSSoup)
+
 # Naming Style
 JSSoup tries to use the same interfaces as BeautifulSoup so BeautifulSoup user can use JSSoup seamlessly. 
 However, JSSoup uses Javascript's camelCase naming style instead of Python's underscore naming style.
 Such as `find_all()` in BeautifulSoup is replaced as `findAll()`.
 
-----------------------------
+# Install
+```
+$ npm install jssoup 
+```
+
 # How to use JSSoup
 ### Make Soup
 ```javascript
+// react-native
 var soup = JSSoup('<html><head>hello</head></html>');
+// node
+var soup = JSSoup('<html><head>hello</head></html>').default;
 ```
 ### Navigation
 #### .previousElement, .nextElement
@@ -56,25 +67,19 @@ div.descendants
 ```javascript
 div.parent == soup
 ```
-#### .getText(), .text
-```javascript
-div.text
-// '123'
-div.getText('|')
-// '1|2|3'
-```
-#### .string
-```javascript
-b.string == '2';
-var soup = JSSoup('<html><head>hello</head></html>');
-soup.string == 'hello';
-```
 ### Edit
 #### .extract()
 ```javascript
 b.extract();
 div.contents
-// [<a>1</a>, <b>2</b>, <c>3</c>]
+// [<a>1</a>, <c>3</c>]
+```
+#### .append()
+```javascript
+b.extract();
+div.append(b)
+div.contents
+// [<a>1</a>, <c>3</c>, <b>2</b>]
 ```
 ### Search
 #### .findAll()
@@ -90,6 +95,42 @@ soup.findAll('a')
 // [<a>hello</a>]
 soup.findAll('div', 'h1')
 // [<div class="h1"></div>]
+```
+#### .find()
+```javascript
+var data = `
+<div>
+  <p> hello </p>
+  <p> world </p>
+</div>
+`
+var soup = JSSoup(data);
+soup.find('p')
+// <p> hello </p>
+```
+### Output
+#### .prettify()
+```javascript
+var soup = JSSoup('<html><head>hello</head></html>');
+soup.nextElement.prettify()
+// <html>
+//  <head>
+//   hello
+//  </head>
+// </html>
+```
+#### .getText(), .text
+```javascript
+div.text
+// '123'
+div.getText('|')
+// '1|2|3'
+```
+#### .string
+```javascript
+b.string == '2';
+var soup = JSSoup('<html><head>hello</head></html>');
+soup.string == 'hello';
 ```
 
 # Run Test
