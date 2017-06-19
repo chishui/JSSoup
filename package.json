@@ -1,6 +1,6 @@
 {
   "name": "jssoup",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JSSoup is a BeautifulSopu style HTML parser library.",
   "main": "./dist/lib/jssoup.js",
   "files": [

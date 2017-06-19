@@ -128,19 +128,72 @@ describe('extract', function() {
     var soup = new JSSoup('<a class="hi">hello</a>');
     var a = soup.contents[0];
     a.extract();
+    assert.equal(a.parent, null);
     assert.equal(soup.contents.length, 0);
     done();
   });
 
-  it('should be OK', function(done) {
-    var soup = new JSSoup('<a class="hi">hello</a><b>asdf</b>');
-    assert.equal(soup.string, undefined);
-    var a = soup.contents[0];
-    a.extract();
-    assert.equal(soup.contents.length, 1);
-    assert.equal(soup.string, 'asdf');
+  it('should be OK with SoupString', function(done) {
+    var soup = new JSSoup('<a class="hi">hello</a>');
+    var text = soup.find(undefined, undefined, 'hello');
+    text.extract();
+    assert.equal(soup.contents[0].nextElement, null);
+    assert.equal(soup.descendants.length, 1);
+    assert.equal(soup.text, '');
     done();
   });
+
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<a class="hi">1</a><b>2</b><c>3</c>');
+    var a = soup.contents[0];
+    var b = soup.contents[1];
+    var c = soup.contents[2];
+    var before = soup.descendants.length;
+    a.extract();
+    assert.equal(soup.nextElement, b);
+    assert.equal(soup, b.previousElement);
+    assert.equal(b.nextElement.nextElement, c);
+    assert.equal(before, soup.descendants.length + 2);
+    assert.equal(a.nextElement.toString(), '1');
+    assert.equal(a.nextElement.nextElement, null);
+    done();
+  });
+
+  it('should be OK with no sub contents', function(done) {
+    var soup = new JSSoup('<a class="hi"></a><b></b><c></c>');
+    var a = soup.contents[0];
+    var b = soup.contents[1];
+    var c = soup.contents[2];
+    var before = soup.descendants.length;
+    b.extract();
+    assert.equal(soup.nextElement, a);
+    assert.equal(soup, a.previousElement);
+    assert.equal(a.nextElement, c);
+    assert.equal(c.previousElement, a);
+    assert.equal(before, soup.descendants.length + 1);
+    assert.equal(a.nextElement.nextElement, null);
+    assert.equal(b.nextElement, null);
+    assert.equal(b.previousElement, null);
+    assert.equal(b.parent, null);
+    done();
+  });
+  
+  it('should be OK with combine function', function(done) {
+    var soup = new JSSoup('<a class="hi">1</a><b>2</b><c>3</c>');
+    var a = soup.contents[0];
+    var b = soup.contents[1];
+    var c = soup.contents[2];
+    var before = soup.descendants.length;
+    b.extract();
+    assert.equal(soup.text, '13');
+    soup.append(b);
+    assert.equal(soup.text, '132');
+    assert.equal(before, soup.descendants.length);
+    assert.equal(c.nextElement.nextElement, b);
+    assert.equal(b.previousElement.previousElement, c);
+    done();
+  });
+
 });
 
 describe('findAll', function() {
@@ -250,6 +303,7 @@ describe('prev next', function() {
 describe('descendants', function() {
   it('should be OK', function(done) {
     var soup = new JSSoup(data);
+    assert.notEqual(soup.descendants, soup.descendants);
     assert.equal(soup.descendants.length, 21);
     var cur = soup.nextElement;
     for (let i of soup.descendants) {
@@ -303,6 +357,67 @@ describe('prettify', function() {
     assert.equal(soup.nextElement.prettify('', ''), '<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
     assert.equal(soup.nextElement.prettify('\t', ''), '<a class="h1 h2" id="h3 h4">\t1\t<b>\t\t2\t</b>\t3</a>');
     assert.equal(soup.nextElement.prettify('\t', ' '), '<a class="h1 h2" id="h3 h4"> \t1 \t<b> \t\t2 \t</b> \t3 </a>');
+    done();
+  });
+});
+
+describe('append', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
+    var text2 = soup.find(undefined, undefined, '2');
+    assert.equal(text2, '2');
+    text2.extract();
+    var b = soup.find('b');
+    assert.equal(b.contents.length, 0);
+    assert.equal(text2.parent, null);
+    var a = soup.find('a');
+    a.append(text2);
+    assert.equal(b.nextSibling, '32');
+    assert.equal(b.nextSibling.nextSibling, null);
+    assert.equal(b.nextElement, '32');
+    assert.equal(b.nextElement.nextElement, null);
+    done();
+  });
+
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b></a>');
+    var text2 = soup.find(undefined, undefined, '2');
+    assert.equal(text2, '2');
+    text2.extract();
+    var b = soup.find('b');
+    assert.equal(b.contents.length, 0);
+    assert.equal(text2.parent, null);
+    var a = soup.find('a');
+    a.append(text2);
+    assert.equal(b.nextSibling, '2');
+    assert.equal(b.nextSibling.nextSibling, null);
+    assert.equal(b.nextElement, '2');
+    assert.equal(b.nextElement.nextElement, null);
+    assert.equal(text2.parent, a);
+    assert.equal(text2.previousSibling, b);
+    assert.equal(text2.previousElement, b);
+    assert.equal(text2.nextSibling, null);
+    assert.equal(text2.nextElement, null);
+    done();
+  });
+
+  it('should be OK', function(done) {
+    var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b><c>3</c></a>');
+    var a = soup.find('a');
+    var b = soup.find('b');
+    var c = soup.find('c');
+    b.extract();
+    a.append(b);
+    assert.equal(c.nextSibling, b);
+    assert.equal(c.nextSibling.nextSibling, undefined);
+    assert.equal(b.nextSibling, null);
+    assert.equal(c.nextElement, '3');
+    assert.equal(c.nextElement.nextElement, b);
+    assert.equal(b.nextElement, '2');
+    assert.equal(b.nextElement.nextElement, null);
+    assert.equal(b.nextElement.previousElement, b);
+    assert.equal(b.previousElement, '3');
+    assert.equal(b.parent, a);
     done();
   });
 });
