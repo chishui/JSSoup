@@ -29,8 +29,7 @@ var JSSoup = require('jssoup').default;
 ```
 ### Make Soup
 ```javascript
-// react-native
-var soup = JSSoup('<html><head>hello</head></html>');
+var soup = new JSSoup('<html><head>hello</head></html>');
 ```
 ### Navigation
 #### .previousElement, .nextElement
@@ -42,7 +41,7 @@ var data = `
   <c>3</c>
 </div>
 `
-var soup = JSSoup(data);
+var soup = new JSSoup(data);
 var div = soup.nextElement;
 var b = div.nextElement.nextElement;
 // b.string: '2'
@@ -51,7 +50,7 @@ var a = b.previousElement;
 ```
 #### .previousSibling, .nextSibling
 ```javascript
-var soup = JSSoup(data);
+var soup = new JSSoup(data);
 var div = soup.nextElement;
 var a = div.nextElement;
 var b = a.nextSibling;
@@ -95,7 +94,7 @@ var data = `
   <a>hello</a>
 </div>
 `
-var soup = JSSoup(data);
+var soup = new JSSoup(data);
 soup.findAll('a')
 // [<a>hello</a>]
 soup.findAll('div', 'h1')
@@ -109,14 +108,14 @@ var data = `
   <p> world </p>
 </div>
 `
-var soup = JSSoup(data);
+var soup = new JSSoup(data);
 soup.find('p')
 // <p> hello </p>
 ```
 ### Output
 #### .prettify()
 ```javascript
-var soup = JSSoup('<html><head>hello</head></html>');
+var soup = new JSSoup('<html><head>hello</head></html>');
 soup.nextElement.prettify()
 // <html>
 //  <head>
@@ -134,7 +133,7 @@ div.getText('|')
 #### .string
 ```javascript
 b.string == '2';
-var soup = JSSoup('<html><head>hello</head></html>');
+var soup = new JSSoup('<html><head>hello</head></html>');
 soup.string == 'hello';
 ```
 
