@@ -20,12 +20,17 @@ $ npm install jssoup
 ```
 
 # How to use JSSoup
+### Import
+```javascript
+//react-native
+import JSSoup from 'jssoup'; 
+// nodejs
+var JSSoup = require('jssoup').default;
+```
 ### Make Soup
 ```javascript
 // react-native
 var soup = JSSoup('<html><head>hello</head></html>');
-// node
-var soup = JSSoup('<html><head>hello</head></html>').default;
 ```
 ### Navigation
 #### .previousElement, .nextElement
