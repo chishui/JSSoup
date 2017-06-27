@@ -8,6 +8,9 @@ and creates a series of BeautifulSoup like API on top of it.
 JSSoup supports both **node** and **react-native**.  
 
 [![Build Status](https://travis-ci.org/chishui/JSSoup.svg?branch=master)](https://travis-ci.org/chishui/JSSoup)
+[![npm version](https://badge.fury.io/js/jssoup.svg)](https://badge.fury.io/js/jssoup)
+[![NPM](https://img.shields.io/npm/dm/jssoup.svg)](https://www.npmjs.com/package/jssoup)
+
 
 # Naming Style
 JSSoup tries to use the same interfaces as BeautifulSoup so BeautifulSoup user can use JSSoup seamlessly. 
