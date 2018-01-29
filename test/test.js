@@ -1,7 +1,6 @@
 const assert = require('assert');
 import JSSoup from '../lib/jssoup';
 
-
 const data = `
   <html><head><title>The Dormouse's story</title></head>
   <body>
@@ -14,9 +13,21 @@ const data = `
   and they lived at the bottom of a well.</p>
 
   <p class="story">...</p>
+
+  <span class="one">One</span>
+  <span class="two">Two</span>
+  <span class="three">Three</span>
+  <span class="one two three">One Two Three</span>
+
+  <div class=" whitespace">Whitespace Left</div>
+  <div class="whitespace ">Whitespace Right</div>
+  <div class=" whitespace ">Whitespace Left and Right</div>
+  <div class="    so    much    whitespace    ">Whitespace</div>
+
   </body>
   </html>
-`
+`;
+
 describe('contents', function() {
   it('should be OK', function(done) {
     var soup = new JSSoup('<a>hello</a>');
@@ -177,7 +188,7 @@ describe('extract', function() {
     assert.equal(b.parent, null);
     done();
   });
-  
+
   it('should be OK with combine function', function(done) {
     var soup = new JSSoup('<a class="hi">1</a><b>2</b><c>3</c>');
     var a = soup.contents[0];
@@ -203,7 +214,7 @@ describe('findAll', function() {
     assert.equal(ret.length, 1);
     soup = new JSSoup(data);
     ret = soup.findAll();
-    assert.equal(ret.length, 11);
+    assert.equal(ret.length, 19);
     ret = soup.findAll('a');
     assert.equal(ret.length, 3);
     ret = soup.findAll('p');
@@ -212,6 +223,10 @@ describe('findAll', function() {
     assert.equal(ret.length, 1);
     ret = soup.findAll('title');
     assert.equal(ret.length, 1);
+    ret = soup.findAll('span');
+    assert.equal(ret.length, 4);
+    ret = soup.findAll('div');
+    assert.equal(ret.length, 4);
     ret = soup.findAll('');
     assert.equal(ret.length, 0);
     done();
@@ -223,7 +238,7 @@ describe('findAll', function() {
     assert.equal(ret.length, 1);
     assert.equal(ret[0].name, 'a');
     ret = soup.findAll('b');
-    assert.equal(ret.length, 0); 
+    assert.equal(ret.length, 0);
     done();
   });
 
@@ -232,17 +247,14 @@ describe('findAll', function() {
     var ret = soup.findAll(undefined, undefined, 'hello');
     assert.equal(ret.length, 1);
     assert.equal(ret[0].constructor.name, 'SoupString');
-
     ret = soup.findAll('a', undefined, 'hello');
     assert.equal(ret.length, 1);
     assert.equal(ret[0].string, 'hello');
     assert.equal(ret[0].name, 'a');
-
     soup = new JSSoup(data);
     ret = soup.findAll(undefined, undefined, '...');
     assert.equal(ret.length, 1);
     assert.equal(ret[0], '...');
-
     ret = soup.findAll('p', undefined, '...');
     assert.equal(ret.length, 1);
     assert.equal(ret[0].name, 'p');
@@ -254,14 +266,63 @@ describe('findAll', function() {
     var soup = new JSSoup(data);
     var ret = soup.findAll('p', 'title');
     assert.equal(ret.length, 1);
-    assert.equal(ret[0].name, 'p')
+    assert.equal(ret[0].name, 'p');
     var ret2 = soup.findAll('p', {class: 'title'});
     assert.equal(ret2.length, 1);
-    assert.equal(ret[0], ret2[0])
+    assert.equal(ret[0], ret2[0]);
     ret = soup.findAll('p', 'story');
     assert.equal(ret.length, 2);
     done();
   });
+
+  it('should be OK with multiple classes', function(done) {
+    var soup = new JSSoup(data);
+    var ret = soup.findAll('span', 'one');
+    assert.equal(ret.length, 2);
+    assert.equal(ret[0].name, 'span');
+    var ret2 = soup.findAll('span', 'two');
+    assert.equal(ret2.length, 2);
+    assert.equal(ret2[0].name, 'span');
+    var ret3 = soup.findAll('span', 'three');
+    assert.equal(ret3.length, 2);
+    assert.equal(ret3[0].name, 'span');
+    done();
+  });
+
+  it('should be OK with whitespace in class definition', function(done) {
+    var soup = new JSSoup(data);
+    var ret = soup.findAll('div', 'whitespace');
+    assert.equal(ret.length, 4);
+    assert.equal(ret[0].name, 'div');
+    var ret2 = soup.findAll('div', ['whitespace']);
+    assert.equal(ret2.length, 4);
+    assert.equal(ret2[0].name, 'div');
+    var ret3 = soup.findAll('div', {class: 'whitespace'});
+    assert.equal(ret3.length, 4);
+    assert.equal(ret3[0].name, 'div');
+    var ret4 = soup.findAll('div', {class: ['whitespace']});
+    assert.equal(ret4.length, 4);
+    assert.equal(ret4[0].name, 'div');
+    done();
+  });
+
+  it('should be OK with whitespace in class selector', function(done) {
+    var soup = new JSSoup(data);
+    var ret = soup.findAll('div', 'whitespace ');
+    assert.equal(ret.length, 4);
+    assert.equal(ret[0].name, 'div');
+    var ret2 = soup.findAll('div', ['whitespace ']);
+    assert.equal(ret2.length, 4);
+    assert.equal(ret2[0].name, 'div');
+    var ret3 = soup.findAll('div', {class: 'whitespace '});
+    assert.equal(ret3.length, 4);
+    assert.equal(ret3[0].name, 'div');
+    var ret4 = soup.findAll('div', {class: ['whitespace ']});
+    assert.equal(ret4.length, 4);
+    assert.equal(ret4[0].name, 'div');
+    done();
+  });
+
 });
 
 describe('prev next', function() {
@@ -280,36 +341,16 @@ describe('prev next', function() {
   });
 });
 
-//describe('*descendants', function() {
-  //it('should be OK', function(done) {
-    //var soup = new JSSoup(data);
-    //assert.equal(soup.descendants.length, 0);
-    //var cur = soup.nextElement;
-    //for (let i of soup.descendants()) {
-      //assert.equal(i, cur);
-      //cur = cur.nextElement;
-    //} 
-    //done();
-  //});
-
-  //it('should be OK', function(done) {
-    //var soup = new JSSoup('<div><a></a><b></b></div>');
-    //var a = soup.nextElement.nextElement;
-    //assert.equal(a.descendants.length, 0);
-    //done();
-  //});
-//});
-
 describe('descendants', function() {
   it('should be OK', function(done) {
     var soup = new JSSoup(data);
     assert.notEqual(soup.descendants, soup.descendants);
-    assert.equal(soup.descendants.length, 21);
+    assert.equal(soup.descendants.length, 37);
     var cur = soup.nextElement;
     for (let i of soup.descendants) {
       assert.equal(i, cur);
       cur = cur.nextElement;
-    } 
+    }
     done();
   });
 
