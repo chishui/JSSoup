@@ -17,7 +17,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var htmlparser = require('htmlparser');
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   try {
-    console.log(navigator.platform);
     htmlparser = Tautologistics.NodeHtmlParser;
   } catch (e) {}
 } else {
@@ -345,21 +344,6 @@ var SoupTag = function (_SoupElement3) {
     get: function get() {
       return this.getText();
     }
-
-    //* descendants () {
-    //var cur = this.nextElement;
-    //while (cur) {
-    //var parent = cur.parent;
-    //while (parent && parent != this) {
-    //parent = parent.parent;
-    //}
-    //if (!parent) break;
-    //yield cur;
-    //cur = cur.nextElement;
-    //}
-    //return undefined;
-    //}
-
   }, {
     key: 'descendants',
     get: function get() {
@@ -421,8 +405,17 @@ var SoupStrainer = function () {
   function SoupStrainer(name, attrs, string) {
     _classCallCheck(this, SoupStrainer);
 
-    if (typeof attrs == 'string' || Array.isArray(attrs)) {
+    if (typeof attrs == 'string') {
+      attrs = { class: [attrs] };
+    } else if (Array.isArray(attrs)) {
       attrs = { class: attrs };
+    } else if (attrs && attrs.class && typeof attrs.class == 'string') {
+      attrs.class = [attrs.class];
+    }
+    if (attrs && attrs.class) {
+      for (var i = 0; i < attrs.class.length; ++i) {
+        attrs.class[i] = attrs.class[i].trim();
+      }
     }
     this.name = name;
     this.attrs = attrs;
@@ -451,7 +444,7 @@ var SoupStrainer = function () {
           var props = Object.getOwnPropertyNames(this.attrs);
           var found = false;
           for (var i = 0; i < props.length; ++i) {
-            if (props[i] in tag.attrs && this._matchAttrs(tag.attrs[props[i]], this.attrs[props[i]])) {
+            if (props[i] in tag.attrs && this._matchAttrs(props[i], tag.attrs[props[i]], this.attrs[props[i]])) {
               found = true;
               break;
             }
@@ -477,15 +470,19 @@ var SoupStrainer = function () {
     }
   }, {
     key: '_matchAttrs',
-    value: function _matchAttrs(candidateAttrs, attrs) {
+    value: function _matchAttrs(name, candidateAttrs, attrs) {
+      if (typeof candidateAttrs == 'string') {
+        if (name == 'class') {
+          candidateAttrs = candidateAttrs.replace(/\s\s+/g, ' ').trim().split(' ');
+        } else {
+          candidateAttrs = [candidateAttrs];
+        }
+      }
       if (typeof attrs == 'string') {
         attrs = [attrs];
       }
-      if (typeof candidateAttrs == 'string') {
-        candidateAttrs = [candidateAttrs];
-      }
-      for (var i = 0; i < candidateAttrs.length; ++i) {
-        if (attrs.indexOf(candidateAttrs[i]) < 0) return false;
+      for (var i = 0; i < attrs.length; ++i) {
+        if (candidateAttrs.indexOf(attrs[i]) < 0) return false;
       }
       return true;
     }
