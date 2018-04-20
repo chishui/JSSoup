@@ -400,6 +400,12 @@ describe('prettify', function() {
     assert.equal(soup.nextElement.prettify('\t', ' '), '<a class="h1 h2" id="h3 h4"> \t1 \t<b> \t\t2 \t</b> \t3 </a>');
     done();
   });
+
+  it('should be OK with comments', function(done) {
+    var soup = new JSSoup('<a class="h1 h2" id="h3 h4"><!--<label "text" </label> -->1<b>2</b>3</a>');
+    assert.equal(soup.nextElement.prettify('',''), '<a class="h1 h2" id="h3 h4"><!--<label "text" </label> -->1<b>2</b>3</a>');
+    done();
+  });
 });
 
 describe('append', function() {
