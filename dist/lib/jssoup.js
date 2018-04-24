@@ -279,7 +279,11 @@ var SoupTag = function (_SoupElement3) {
         if (this.contents[i] instanceof SoupString) {
           text += indent.repeat(level + 1) + this.contents[i].toString() + breakline;
         } else {
-          text += this.contents[i]._prettify(indent, breakline, level + 1);
+          if (this.contents[i] instanceof SoupComment) {
+            text += indent.repeat(level + 1) + "<!--" + this.contents[i]._text + "-->" + breakline;
+          } else {
+            text += this.contents[i]._prettify(indent, breakline, level + 1);
+          }
         }
       }
       text += indent.repeat(level) + '</' + this.name + '>' + breakline;
