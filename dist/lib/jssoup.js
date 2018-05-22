@@ -308,7 +308,7 @@ var SoupTag = function (_SoupElement3) {
         }
       }
 
-      for (i = 0; i < this.contents.length; ++i) {
+      for (var i = 0; i < this.contents.length; ++i) {
         if (this.contents[i] instanceof SoupString) {
           text += indent.repeat(level + 1) + this.contents[i].toString() + breakline;
         } else {
