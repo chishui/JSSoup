@@ -132,6 +132,29 @@ SoupString.prototype.toString = function () {
   return this._text;
 };
 
+var SoupDoctypeString = function (_SoupString) {
+  _inherits(SoupDoctypeString, _SoupString);
+
+  function SoupDoctypeString(text) {
+    var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var previousElement = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var nextElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
+    _classCallCheck(this, SoupDoctypeString);
+
+    var _this3 = _possibleConstructorReturn(this, (SoupDoctypeString.__proto__ || Object.getPrototypeOf(SoupDoctypeString)).call(this, parent, previousElement, nextElement));
+
+    _this3._text = text;
+    return _this3;
+  }
+
+  return SoupDoctypeString;
+}(SoupString);
+
+SoupDoctypeString.prototype.toString = function () {
+  return "<" + this._text + ">";
+};
+
 var SoupTag = function (_SoupElement3) {
   _inherits(SoupTag, _SoupElement3);
 
@@ -143,12 +166,13 @@ var SoupTag = function (_SoupElement3) {
 
     _classCallCheck(this, SoupTag);
 
-    var _this3 = _possibleConstructorReturn(this, (SoupTag.__proto__ || Object.getPrototypeOf(SoupTag)).call(this, parent, previousElement, nextElement));
+    var _this4 = _possibleConstructorReturn(this, (SoupTag.__proto__ || Object.getPrototypeOf(SoupTag)).call(this, parent, previousElement, nextElement));
 
-    _this3.name = name;
-    _this3.contents = [];
-    _this3.attrs = attrs || {};
-    return _this3;
+    _this4.name = name;
+    _this4.contents = [];
+    _this4.attrs = attrs || {};
+    _this4.hidden = false;
+    return _this4;
   }
 
   _createClass(SoupTag, [{
@@ -193,9 +217,13 @@ var SoupTag = function (_SoupElement3) {
         return new SoupString(dom.data, this);
       } else if (dom.type === 'comment') {
         return new SoupComment(dom.data, this);
-      } else {
-        return new SoupTag(dom.name, dom.attribs, this);
+      } else if (dom.type === 'directive') {
+        //<!**
+        if (dom.name === '!DOCTYPE') {
+          return new SoupDoctypeString(dom.data, this);
+        }
       }
+      return new SoupTag(dom.name, dom.attribs, this);
     }
   }, {
     key: 'find',
@@ -268,14 +296,19 @@ var SoupTag = function (_SoupElement3) {
       var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
       var text = '';
-      var attrs = this._convertAttrsToString();
-      if (attrs) {
-        text += indent.repeat(level) + '<' + this.name + ' ' + attrs + '>' + breakline;
-      } else {
-        text += indent.repeat(level) + '<' + this.name + '>' + breakline;
+      if (this.hidden && level == 0) {
+        --level;
+      }
+      if (!this.hidden) {
+        var attrs = this._convertAttrsToString();
+        if (attrs) {
+          text += indent.repeat(level) + '<' + this.name + ' ' + attrs + '>' + breakline;
+        } else {
+          text += indent.repeat(level) + '<' + this.name + '>' + breakline;
+        }
       }
 
-      for (var i = 0; i < this.contents.length; ++i) {
+      for (i = 0; i < this.contents.length; ++i) {
         if (this.contents[i] instanceof SoupString) {
           text += indent.repeat(level + 1) + this.contents[i].toString() + breakline;
         } else {
@@ -286,7 +319,9 @@ var SoupTag = function (_SoupElement3) {
           }
         }
       }
-      text += indent.repeat(level) + '</' + this.name + '>' + breakline;
+      if (!this.hidden) {
+        text += indent.repeat(level) + '</' + this.name + '>' + breakline;
+      }
       return text;
     }
   }, {
@@ -381,7 +416,7 @@ var JSSoup = function (_SoupTag) {
   function JSSoup(text) {
     _classCallCheck(this, JSSoup);
 
-    var _this4 = _possibleConstructorReturn(this, (JSSoup.__proto__ || Object.getPrototypeOf(JSSoup)).call(this, ROOT_TAG_NAME, null));
+    var _this5 = _possibleConstructorReturn(this, (JSSoup.__proto__ || Object.getPrototypeOf(JSSoup)).call(this, ROOT_TAG_NAME, null));
 
     var handler = new htmlparser.DefaultHandler(function (error, dom) {
       if (error) {
@@ -393,11 +428,13 @@ var JSSoup = function (_SoupTag) {
     parser.parseComplete(text);
 
     if (Array.isArray(handler.dom)) {
-      _this4._build(handler.dom);
+      _this5._build(handler.dom);
     } else {
-      _this4._build([handler.dom]);
+      _this5._build([handler.dom]);
     }
-    return _this4;
+
+    _this5.hidden = true;
+    return _this5;
   }
 
   return JSSoup;

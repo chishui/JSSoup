@@ -379,31 +379,47 @@ describe('getText', function() {
     done();
   });
 });
-
 describe('prettify', function() {
   it('should be OK', function(done) {
     var soup = new JSSoup('<a>1<b>2</b>3</a>');
-    assert.equal(soup.nextElement.prettify(), '<a>\n 1\n <b>\n  2\n </b>\n 3\n</a>');
+    assert.equal(soup.prettify(), '<a>\n 1\n <b>\n  2\n </b>\n 3\n</a>');
     done();
   });
 
   it('should be OK with attributes', function(done) {
     var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
-    assert.equal(soup.nextElement.prettify(), '<a class="h1 h2" id="h3 h4">\n 1\n <b>\n  2\n </b>\n 3\n</a>');
+    assert.equal(soup.prettify(), '<a class="h1 h2" id="h3 h4">\n 1\n <b>\n  2\n </b>\n 3\n</a>');
     done();
   });
 
   it('should be OK with indent argument', function(done) {
     var soup = new JSSoup('<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
-    assert.equal(soup.nextElement.prettify('', ''), '<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
-    assert.equal(soup.nextElement.prettify('\t', ''), '<a class="h1 h2" id="h3 h4">\t1\t<b>\t\t2\t</b>\t3</a>');
-    assert.equal(soup.nextElement.prettify('\t', ' '), '<a class="h1 h2" id="h3 h4"> \t1 \t<b> \t\t2 \t</b> \t3 </a>');
+    assert.equal(soup.prettify('', ''), '<a class="h1 h2" id="h3 h4">1<b>2</b>3</a>');
+    assert.equal(soup.prettify('\t', ''), '<a class="h1 h2" id="h3 h4">\t1\t<b>\t\t2\t</b>\t3</a>');
+    assert.equal(soup.prettify('\t', ' '), '<a class="h1 h2" id="h3 h4"> \t1 \t<b> \t\t2 \t</b> \t3 </a>');
     done();
   });
 
   it('should be OK with comments', function(done) {
     var soup = new JSSoup('<a class="h1 h2" id="h3 h4"><!--<label "text" </label> -->1<b>2</b>3</a>');
-    assert.equal(soup.nextElement.prettify('',''), '<a class="h1 h2" id="h3 h4"><!--<label "text" </label> -->1<b>2</b>3</a>');
+    assert.equal(soup.prettify('',''), '<a class="h1 h2" id="h3 h4"><!--<label "text" </label> -->1<b>2</b>3</a>');
+    done();
+  });
+   
+  it('should be OK with doctype', function(done) {
+   var text = `
+    <!DOCTYPE HTML>
+    <html>
+    <head>
+    </head>
+    <body>
+        <div>
+        </div>
+    </body>
+    </html>
+    `
+    var soup = new JSSoup(text);
+    assert.equal(soup.prettify('',''), `<!DOCTYPE HTML><html><head></head><body><div></div></body></html>`);
     done();
   });
 });
