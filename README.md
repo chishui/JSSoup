@@ -140,7 +140,7 @@ soup.find('p')
 #### .prettify()
 ```javascript
 var soup = new JSSoup('<html><head>hello</head></html>');
-soup.nextElement.prettify()
+soup.prettify()
 // <html>
 //  <head>
 //   hello
