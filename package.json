@@ -1,6 +1,6 @@
 {
   "name": "jssoup",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "JSSoup is a BeautifulSoup style HTML parser library.",
   "main": "./dist/lib/jssoup.js",
   "files": [
@@ -35,9 +35,12 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-preset-es2015": "^6.24.1",
-    "mocha": "^3.5.3"
+    "mocha": "^5.2.0"
   },
   "dependencies": {
-    "htmlparser": "^1.7.7"
+    "debug": "^2.6.9",
+    "growl": "^1.10.5",
+    "htmlparser": "^1.7.7",
+    "lodash": "^4.17.5"
   }
 }
