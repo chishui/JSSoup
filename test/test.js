@@ -422,6 +422,25 @@ describe('prettify', function() {
     assert.equal(soup.prettify('',''), `<!DOCTYPE HTML><html><head></head><body><div></div></body></html>`);
     done();
   });
+
+  it('should be able to skip DOCTYPE', function(done) {
+   var text = `
+    <!DOCTYPE HTML>
+    <html>
+    <head>
+    </head>
+    <body>
+        <div>
+        </div>
+    </body>
+    </html>
+    `
+    var soup = new JSSoup(text);
+    assert.equal(soup.nextElement.nextElement.prettify('',''), `<html><head></head><body><div></div></body></html>`);
+    soup.nextElement.extract();
+    assert.equal(soup.nextElement.prettify('',''), `<html><head></head><body><div></div></body></html>`);
+    done();
+  });
 });
 
 describe('append', function() {
