@@ -393,7 +393,7 @@ var SoupTag = function (_SoupElement3) {
         while (parent && parent != this) {
           parent = parent.parent;
         }
-        if (!parent) break;
+        // if (!parent) break;
         ret.push(cur);
         cur = cur.nextElement;
       }
