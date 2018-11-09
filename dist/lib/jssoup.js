@@ -142,7 +142,7 @@ var SoupDoctypeString = function (_SoupString) {
 
     _classCallCheck(this, SoupDoctypeString);
 
-    var _this3 = _possibleConstructorReturn(this, (SoupDoctypeString.__proto__ || Object.getPrototypeOf(SoupDoctypeString)).call(this, parent, previousElement, nextElement));
+    var _this3 = _possibleConstructorReturn(this, (SoupDoctypeString.__proto__ || Object.getPrototypeOf(SoupDoctypeString)).call(this, text, parent, previousElement, nextElement));
 
     _this3._text = text;
     return _this3;
