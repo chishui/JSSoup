@@ -207,6 +207,23 @@ describe('extract', function() {
 
 });
 
+describe('find', function() {
+  it('should be OK to find div with DOCTYPE', function(done) {
+    var text = `
+      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      <html><head><title>The Dormouse's story</title></head>
+      <body>
+      <div class="one">One</div>
+      </body>
+      </html>
+    `;
+    var soup = new JSSoup(text);
+    var tag = soup.find('div');
+    assert.equal(tag.text, 'One');
+    done();
+  });
+})
+
 describe('findAll', function() {
   it('should find all elements', function(done) {
     var soup = new JSSoup('<a>hello</a>');
@@ -405,7 +422,7 @@ describe('prettify', function() {
     assert.equal(soup.prettify('',''), '<a class="h1 h2" id="h3 h4"><!--<label "text" </label> -->1<b>2</b>3</a>');
     done();
   });
-   
+
   it('should be OK with doctype', function(done) {
    var text = `
     <!DOCTYPE HTML>
