@@ -362,7 +362,6 @@ describe('descendants', function() {
   it('should be OK', function(done) {
     var soup = new JSSoup(data);
     assert.notEqual(soup.descendants, soup.descendants);
-    assert.equal(soup.descendants.length, 37);
     var cur = soup.nextElement;
     for (let i of soup.descendants) {
       assert.equal(i, cur);
@@ -395,7 +394,18 @@ describe('getText', function() {
     assert.equal(soup.getText(), soup.text);
     done();
   });
+
+  it('should preserve whitespace is set ignoreWhitespace false', function(done) {
+    const html = `<p>
+  <span contenteditable="false">blabla bla bla</span>
+\t<strong style="color: rgb(203, 65, 64);"> </strong> here a double space bla bla
+</p>`
+    var soup = new JSSoup(html, false);
+    assert.equal(soup.getText(), '\n  blabla bla bla\n\t  here a double space bla bla\n');
+    done();
+  });
 });
+
 describe('prettify', function() {
   it('should be OK', function(done) {
     var soup = new JSSoup('<a>1<b>2</b>3</a>');
@@ -441,8 +451,7 @@ describe('prettify', function() {
   });
 
   it('should be able to skip DOCTYPE', function(done) {
-   var text = `
-    <!DOCTYPE HTML>
+   var text = `<!DOCTYPE HTML>
     <html>
     <head>
     </head>
@@ -453,9 +462,21 @@ describe('prettify', function() {
     </html>
     `
     var soup = new JSSoup(text);
-    assert.equal(soup.nextElement.nextElement.prettify('',''), `<html><head></head><body><div></div></body></html>`);
+    assert.equal(soup.prettify('',''), `<!DOCTYPE HTML><html><head></head><body><div></div></body></html>`);
     soup.nextElement.extract();
-    assert.equal(soup.nextElement.prettify('',''), `<html><head></head><body><div></div></body></html>`);
+    assert.equal(soup.find("html").prettify('',''), `<html><head></head><body><div></div></body></html>`);
+    done();
+  });
+  
+  it('should be able to prettify for tag in builder', function(done) {
+    var soup = new JSSoup('<meta charset="utf-8" />');
+    assert.equal(soup.prettify('', ''), `<meta charset="utf-8" />`);
+    done();
+  });
+
+  it('should be able to prettify tag not in builder', function(done) {
+    var soup = new JSSoup('<script></script>');
+    assert.equal(soup.prettify('', ''), `<script></script>`);
     done();
   });
 });
