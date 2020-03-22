@@ -12,7 +12,7 @@
     "init": "mkdir dist && mkdir dist/lib",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean && npm run init",
-    "build": "babel ./lib/jssoup.js -d dist --presets es2015 "
+    "build": "babel ./lib/*.js -d dist --presets es2015 "
   },
   "repository": {
     "type": "git",

@@ -8,6 +8,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _builder = require('./builder.js');
+
+var _builder2 = _interopRequireDefault(_builder);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -15,6 +21,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var htmlparser = require('htmlparser');
+
+
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   try {
     htmlparser = Tautologistics.NodeHtmlParser;
@@ -158,11 +166,11 @@ SoupDoctypeString.prototype.toString = function () {
 var SoupTag = function (_SoupElement3) {
   _inherits(SoupTag, _SoupElement3);
 
-  function SoupTag(name) {
-    var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var previousElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    var nextElement = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+  function SoupTag(name, builder) {
+    var attrs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var parent = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+    var previousElement = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+    var nextElement = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
     _classCallCheck(this, SoupTag);
 
@@ -172,6 +180,7 @@ var SoupTag = function (_SoupElement3) {
     _this4.contents = [];
     _this4.attrs = attrs || {};
     _this4.hidden = false;
+    _this4.builder = builder;
     return _this4;
   }
 
@@ -191,7 +200,7 @@ var SoupTag = function (_SoupElement3) {
       if (!children || children.length < 1) return this;
       var last = this;
       for (var i = 0; i < children.length; ++i) {
-        var ele = this._transfer(children[i]);
+        var ele = this._transform(children[i]);
         last.nextElement = ele;
         ele.previousElement = last;
         if (ele instanceof SoupTag) {
@@ -210,8 +219,8 @@ var SoupTag = function (_SoupElement3) {
      */
 
   }, {
-    key: '_transfer',
-    value: function _transfer(dom) {
+    key: '_transform',
+    value: function _transform(dom) {
       if (!dom) return null;
       if (dom.type === 'text') {
         return new SoupString(dom.data, this);
@@ -223,7 +232,7 @@ var SoupTag = function (_SoupElement3) {
           return new SoupDoctypeString(dom.data, this);
         }
       }
-      return new SoupTag(dom.name, dom.attribs, this);
+      return new SoupTag(dom.name, this.builder, dom.attribs, this);
     }
   }, {
     key: 'find',
@@ -255,10 +264,80 @@ var SoupTag = function (_SoupElement3) {
       for (var i = 0; i < descendants.length; ++i) {
         if (descendants[i] instanceof SoupTag) {
           var tag = strainer.match(descendants[i]);
-          if (tag) results.push(tag);
+          if (tag) {
+            results.push(tag);
+          }
         }
       }
 
+      return results;
+    }
+  }, {
+    key: 'findPreviousSibling',
+    value: function findPreviousSibling() {
+      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+      var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+      var string = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+      var results = this.findPreviousSiblings(name, attrs, string);
+      if (results.length > 0) {
+        return results[0];
+      }
+      return undefined;
+    }
+  }, {
+    key: 'findPreviousSiblings',
+    value: function findPreviousSiblings() {
+      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+      var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+      var string = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+      var results = [];
+      var cur = this.previousSibling;
+      var strainer = new SoupStrainer(name, attrs, string);
+      while (cur) {
+        if (cur instanceof SoupTag) {
+          var tag = strainer.match(cur);
+          if (tag) {
+            results.push(tag);
+          }
+        }
+        cur = cur.previousSibling;
+      }
+      return results;
+    }
+  }, {
+    key: 'findNextSibling',
+    value: function findNextSibling() {
+      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+      var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+      var string = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+      var results = this.findNextSiblings(name, attrs, string);
+      if (results.length > 0) {
+        return results[0];
+      }
+      return undefined;
+    }
+  }, {
+    key: 'findNextSiblings',
+    value: function findNextSiblings() {
+      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+      var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+      var string = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+      var results = [];
+      var cur = this.nextSibling;
+      var strainer = new SoupStrainer(name, attrs, string);
+      while (cur) {
+        if (cur instanceof SoupTag) {
+          var tag = strainer.match(cur);
+          if (tag) {
+            results.push(tag);
+          }
+        }
+        cur = cur.nextSibling;
+      }
       return results;
     }
   }, {
@@ -302,15 +381,33 @@ var SoupTag = function (_SoupElement3) {
       if (!this.hidden) {
         var attrs = this._convertAttrsToString();
         if (attrs) {
-          text += indent.repeat(level) + '<' + this.name + ' ' + attrs + '>' + breakline;
+          text += indent.repeat(level) + '<' + this.name + ' ' + attrs;
         } else {
-          text += indent.repeat(level) + '<' + this.name + '>' + breakline;
+          text += indent.repeat(level) + '<' + this.name;
+        }
+      }
+
+      // is an element doesn't have any contents, it's a self closing element
+      if (!this.hidden) {
+        if (this._isEmptyElement() && this.builder.canBeEmptyElement(this.name)) {
+          text += ' />' + breakline;
+          return text;
+        } else {
+          text += '>' + breakline;
         }
       }
 
       for (var i = 0; i < this.contents.length; ++i) {
         if (this.contents[i] instanceof SoupString) {
-          text += indent.repeat(level + 1) + this.contents[i].toString() + breakline;
+          var curText = this.contents[i].toString();
+          curText = curText.trim();
+          if (curText.length != 0) {
+            if (curText.substring(curText.length - 1) == "\n") {
+              text += indent.repeat(level + 1) + curText;
+            } else {
+              text += indent.repeat(level + 1) + curText + breakline;
+            }
+          }
         } else {
           if (this.contents[i] instanceof SoupComment) {
             text += indent.repeat(level + 1) + "<!--" + this.contents[i]._text + "-->" + breakline;
@@ -319,9 +416,11 @@ var SoupTag = function (_SoupElement3) {
           }
         }
       }
+
       if (!this.hidden) {
         text += indent.repeat(level) + '</' + this.name + '>' + breakline;
       }
+
       return text;
     }
   }, {
@@ -369,6 +468,11 @@ var SoupTag = function (_SoupElement3) {
       item.parent = this;
     }
   }, {
+    key: '_isEmptyElement',
+    value: function _isEmptyElement() {
+      return this.contents.length == 0;
+    }
+  }, {
     key: 'string',
     get: function get() {
       var cur = this;
@@ -414,15 +518,17 @@ var JSSoup = function (_SoupTag) {
   _inherits(JSSoup, _SoupTag);
 
   function JSSoup(text) {
+    var ignoreWhitespace = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
     _classCallCheck(this, JSSoup);
 
-    var _this5 = _possibleConstructorReturn(this, (JSSoup.__proto__ || Object.getPrototypeOf(JSSoup)).call(this, ROOT_TAG_NAME, null));
+    var _this5 = _possibleConstructorReturn(this, (JSSoup.__proto__ || Object.getPrototypeOf(JSSoup)).call(this, ROOT_TAG_NAME, new _builder2.default(), null));
 
     var handler = new htmlparser.DefaultHandler(function (error, dom) {
       if (error) {
         console.log(error);
       } else {}
-    }, { verbose: false, ignoreWhitespace: true });
+    }, { verbose: false, ignoreWhitespace: ignoreWhitespace });
 
     var parser = new htmlparser.Parser(handler);
     parser.parseComplete(text);

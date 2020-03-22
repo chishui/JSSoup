@@ -479,6 +479,14 @@ describe('prettify', function() {
     assert.equal(soup.prettify('', ''), `<script></script>`);
     done();
   });
+
+  it('should be able to handle br', function(done) {
+    var soup = new JSSoup('<br>');
+    assert.equal(soup.prettify('', ''), `<br />`);
+    soup = new JSSoup('<br/>');
+    assert.equal(soup.prettify('', ''), `<br />`);
+    done();
+  });
 });
 
 describe('append', function() {
