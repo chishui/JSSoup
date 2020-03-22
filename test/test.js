@@ -467,7 +467,7 @@ describe('prettify', function() {
     assert.equal(soup.find("html").prettify('',''), `<html><head></head><body><div></div></body></html>`);
     done();
   });
-  
+
   it('should be able to prettify for tag in builder', function(done) {
     var soup = new JSSoup('<meta charset="utf-8" />');
     assert.equal(soup.prettify('', ''), `<meta charset="utf-8" />`);
@@ -538,6 +538,89 @@ describe('append', function() {
     assert.equal(b.nextElement.previousElement, b);
     assert.equal(b.previousElement, '3');
     assert.equal(b.parent, a);
+    done();
+  });
+});
+
+describe('findNextSiblings', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span');
+    var nextSiblings = span.findNextSiblings('span');
+    assert.equal(nextSiblings.length, 3);
+    assert.equal(nextSiblings[0].name, 'span');
+    assert.equal(nextSiblings[1].name, 'span');
+    assert.equal(nextSiblings[2].name, 'span');
+    done();
+  });
+
+  it('should be OK with attributes', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span');
+    var nextSiblings = span.findNextSiblings('span', 'one');
+    assert.equal(nextSiblings.length, 1);
+    assert.equal(nextSiblings[0].name, 'span');
+    done();
+  });
+});
+
+describe('findNextSibling', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span');
+    var nextSibling = span.findNextSibling('span');
+    assert.equal(nextSibling.name, 'span');
+    assert.equal(nextSibling.text, 'Two');
+    done();
+  });
+
+  it('should be OK with attributes', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span');
+    var nextSibling = span.findNextSibling('span', 'one');
+    assert.equal(nextSibling.name, 'span');
+    assert.equal(nextSibling.text, 'One Two Three');
+    done();
+  });
+});
+
+describe('findPreviousSiblings', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span', 'three');
+    var previousSiblings = span.findPreviousSiblings('span');
+    assert.equal(previousSiblings.length, 2);
+    assert.equal(previousSiblings[0].name, 'span');
+    assert.equal(previousSiblings[1].name, 'span');
+    done();
+  });
+
+  it('should be OK with attributes', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span', 'three');
+    var previousSiblings = span.findPreviousSiblings('span', 'one');
+    assert.equal(previousSiblings.length, 1);
+    assert.equal(previousSiblings[0].name, 'span');
+    done();
+  });
+});
+
+describe('findPreviousSibling', function() {
+  it('should be OK', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span', 'three');
+    var previousSibling = span.findPreviousSibling('span');
+    assert.equal(previousSibling.name, 'span');
+    assert.equal(previousSibling.text, 'Two');
+    done();
+  });
+
+  it('should be OK with attributes', function(done) {
+    var soup = new JSSoup(data);
+    var span = soup.find('span', 'three');
+    var previousSibling = span.findPreviousSibling('span', 'one');
+    assert.equal(previousSibling.name, 'span');
+    assert.equal(previousSibling.text, 'One');
     done();
   });
 });

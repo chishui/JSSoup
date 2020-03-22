@@ -34,6 +34,12 @@ var JSSoup = require('jssoup').default;
 ```javascript
 var soup = new JSSoup('<html><head>hello</head></html>');
 ```
+> The text element only contains whitespace will be ignored by default. To disable this feature, set second parameter 
+of JSSoup to false. This parameter is "ignoreWhitespace" and will be passed into htmlparser.
+```javascript
+var soup = new JSSoup('<html><head>hello</head></html>', false);
+```
+
 ### Name
 ```javascript
 var soup = new JSSoup('<html><head>hello</head></html>');
@@ -135,6 +141,68 @@ var data = `
 var soup = new JSSoup(data);
 soup.find('p')
 // <p> hello </p>
+```
+#### .findNextSibling()
+```javascript
+var data = `
+<div>
+  <span> test </span>
+  <div> div </div>
+  <p> hello </p>
+  <p> world </p>
+</div>
+`
+var soup = new JSSoup(data);
+var span = soup.find('span');
+span.findNextSibling('p')
+// <p> hello </p>
+```
+#### .findNextSiblings()
+```javascript
+var data = `
+<div>
+  <span> test </span>
+  <div> div </div>
+  <p> hello </p>
+  <p> world </p>
+</div>
+`
+var soup = new JSSoup(data);
+var span = soup.find('span');
+span.findNextSiblings('p')
+// <p> hello </p>
+// <p> world </p>
+```
+#### .findPreviousSibling()
+```javascript
+var data = `
+<div>
+  <p> hello </p>
+  <p> world </p>
+  <div> div </div>
+  <span> test </span>
+</div>
+`
+var soup = new JSSoup(data);
+var span = soup.find('span');
+span.findPreviousSibling('p')
+// <p> world </p>
+```
+#### .findPreviousSiblings()
+```javascript
+var data = `
+<div>
+  <p> hello </p>
+  <p> world </p>
+  <div> div </div>
+  <span> test </span>
+</div>
+`
+var soup = new JSSoup(data);
+var span = soup.find('span');
+span.findPreviousSiblings('p')
+// <p> hello </p>
+// <p> world </p>
 ```
 ### Output
 #### .prettify()
