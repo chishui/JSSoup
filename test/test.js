@@ -1,4 +1,5 @@
 const assert = require('assert');
+var expect = require('chai').expect;
 import JSSoup from '../lib/jssoup';
 
 const data = `
@@ -631,4 +632,233 @@ describe('findPreviousSibling', function() {
     assert.equal(previousSibling.text, 'One');
     done();
   });
+});
+
+describe('insert', function() {
+  it('should throw exception for null element', function(done) {
+    var soup = new JSSoup(data);
+    expect(() => {soup.insert(0, null)}).to.throw();
+    done();
+  });
+
+  it('should throw exception for node itself', function(done) {
+    var soup = new JSSoup(data);
+    var tag = soup.find('div');
+    expect(() => {tag.insert(0, tag)}).to.throw();
+    done();
+  });
+
+  it('should throw exception trying to insert into string', function(done) {
+    var soup = new JSSoup(data);
+    var p = soup.find('p');
+    expect(() => {p.string.insert(0, 'new node')}).to.throw();
+    done();
+  });
+
+
+  it('should throw exception trying to insert at negative position', function(done) {
+    var soup = new JSSoup(data);
+    var p = soup.find('p');
+    var div = soup.find('div');
+    expect(() => {p.insert(-1, div)}).to.throw();
+    done();
+  });
+
+  it('should be able to insert string', function(done) {
+    var soup = new JSSoup('<div><p>hello</p></div>');
+    var p = soup.find('p');
+    p.insert(1, ' world');
+    assert.equal(p.getText(), 'hello world');
+    done();
+  });
+
+
+  it('should not change if inserting child to current index', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var oldText = soup.getText();
+    var div = soup.find('div');
+    var p2 = soup.find('p', {'id': 'p2'});
+    div.insert(1, p2);
+    assert.equal(oldText, soup.getText());
+    done();
+  });
+
+  it('should change order if inserting child to begin', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var oldText = soup.getText();
+    var div = soup.find('div');
+    var p2 = soup.find('p', {'id': 'p2'});
+    div.insert(0, p2);
+    assert.equal(soup.getText(), 'p2p1p3');
+    done();
+  });
+
+  it('should change order if inserting child to end', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var div = soup.find('div');
+    var p2 = soup.find('p', {'id': 'p2'});
+    div.insert(100, p2);
+    assert.equal(soup.getText(), 'p1p3p2');
+    done();
+  });
+
+  it('should be able to insert at the end', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var div = soup.find('div');
+    var p2 = soup.find('p', {'id': 'p2'});
+    soup.insert(100, p2);
+    assert.equal(soup.getText(), 'p1p3p2');
+    assert.equal(div.nextSibling.prettify('', ''), '<p id="p2">p2</p>');
+    done();
+  });
+
+  it('should be able to insert node from another DOM', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+    </div>
+    `
+    var toHtml = `
+    <span>
+      <a href="http" />
+    </span>
+    `
+    var fromSoup = new JSSoup(html);
+    var toSoup = new JSSoup(toHtml);
+    var div = fromSoup.find('div');
+    var span = toSoup.find('span');
+    span.insert(100, div);
+    assert.equal(span.prettify('', ''), '<span><a href="http"></a><div><p id="p1">p1</p></div></span>');
+    done();
+  });
+
+  it('should be able to insert JSSoup', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+    </div>
+    `
+    var toHtml = `
+    <span>
+      <a href="http" />
+    </span>
+    `
+    var fromSoup = new JSSoup(html);
+    var toSoup = new JSSoup(toHtml);
+    toSoup.insert(100, fromSoup);
+    assert.equal(toSoup.prettify('', ''), '<span><a href="http"></a></span><div><p id="p1">p1</p></div>');
+    done();
+  });
+});
+
+
+describe('replaceWith', function() {
+  it('should throw exception if parent is null', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var p1 = soup.find('p', {'id': 'p1'});
+    var p2 = soup.find('p', {'id': 'p2'});
+    p1.extract();
+    expect(() => {p1.replaceWith(p2)}).to.throw();
+    done();
+  });
+
+  it('should throw exception if replace with one itself', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var old = soup.prettify();
+    var p1 = soup.find('p', {'id': 'p1'});
+    p1.replaceWith(p1);
+    assert.equal(old, soup.prettify());
+    done();
+  });
+
+  it('should throw exception if replace with ones parent', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var div = soup.find('div');
+    var p1 = soup.find('p', {'id': 'p1'});
+    expect(() => {p1.replaceWith(div)}).to.throw();
+    done();
+  });
+
+  it('should be able to replace one with another', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+      <p id="p3">p3</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var div = soup.find('div');
+    var p1 = soup.find('p', {'id': 'p1'});
+    var p2 = soup.find('p', {'id': 'p2'});
+    p1.replaceWith(p2);
+    assert.equal(div.prettify('', ''), '<div><p id="p2">p2</p><p id="p3">p3</p></div>');
+    done();
+  });
+
+  it('should be able to replace SoupString', function(done) {
+    var html = `
+    <div>
+      <p id="p1">p1</p>
+      <p id="p2">p2</p>
+    </div>
+    `
+    var soup = new JSSoup(html);
+    var div = soup.find('div');
+    var p1 = soup.find('p', {'id': 'p1'});
+    p1.string.replaceWith("hello");
+    assert.equal(div.prettify('', ''), '<div><p id="p1">hello</p><p id="p2">p2</p></div>');
+    done();
+  });
+
+
 });

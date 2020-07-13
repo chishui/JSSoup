@@ -78,6 +78,116 @@ var SoupElement = function () {
       this.parent = null;
     }
   }, {
+    key: 'insert',
+    value: function insert(index, newElement) {
+      var _this = this;
+
+      if (newElement == null) {
+        throw "Cannot insert null element!";
+      }
+
+      if (newElement === this) {
+        throw "Cannot add one itself!";
+      }
+
+      if (!(this instanceof SoupTag)) {
+        throw "insert is not support in " + this.constructor.name;
+      }
+
+      if (index < 0) {
+        throw "index cannot be negative!";
+      }
+
+      if (newElement instanceof JSSoup) {
+        newElement.contents.forEach(function (element) {
+          _this.insert(index, element);
+          ++index;
+        });
+        return;
+      }
+
+      index = Math.min(index, this.contents.length);
+
+      if (typeof newElement == 'string') {
+        newElement = new SoupString(newElement);
+      }
+
+      if (newElement.parent) {
+        if (newElement.parent === this) {
+          var curIndex = this.contents.indexOf(newElement);
+          if (index == curIndex) return;
+          if (index > curIndex) {
+            --index;
+          }
+        }
+        newElement.extract();
+      }
+
+      var count = this.contents.length;
+
+      var descendantsOfNewElement = newElement.descendants;
+      var lastElementOfNewElement = descendantsOfNewElement && descendantsOfNewElement.length > 0 ? descendantsOfNewElement[descendantsOfNewElement.length - 1] : newElement;
+      // handle previous element of newElement
+      if (index == 0) {
+        newElement.previousElement = this;
+      } else {
+        var previousChild = this.contents[index - 1];
+        var previousDescendants = previousChild.descendants;
+        newElement.previousElement = previousDescendants && previousDescendants.length > 0 ? previousDescendants[previousDescendants.length - 1] : previousChild;
+      }
+      if (newElement.previousElement) {
+        newElement.previousElement.nextElement = newElement;
+      }
+      // handle next element of newElement
+      if (index < count) {
+        lastElementOfNewElement.nextElement = this.contents[index];
+      } else {
+        var parent = this;
+        var parentNextSibling = null;
+        while (!parentNextSibling && parent) {
+          parentNextSibling = parent.nextSibling;
+          parent = parent.parent;
+        }
+
+        if (parentNextSibling) {
+          lastElementOfNewElement.nextElement = parentNextSibling;
+        } else {
+          lastElementOfNewElement.nextElement = null;
+        }
+      }
+      if (lastElementOfNewElement.nextElement) {
+        lastElementOfNewElement.nextElement.previousElement = lastElementOfNewElement;
+      }
+
+      newElement.parent = this;
+      this.contents.splice(index, 0, newElement);
+    }
+  }, {
+    key: 'replaceWith',
+    value: function replaceWith(newElement) {
+      if (this.parent == null) {
+        throw "Cannot replace element without parent!";
+      }
+
+      if (newElement === this) {
+        return;
+      }
+
+      if (newElement === this.parent) {
+        throw "Cannot replace element with its parent!";
+      }
+
+      var parent = this.parent;
+      var index = this.parent.contents.indexOf(this);
+      this.extract();
+      try {
+        parent.insert(index, newElement);
+      } catch (err) {
+        throw 'Cannot replace this element!';
+      }
+      return this;
+    }
+  }, {
     key: 'nextSibling',
     get: function get() {
       if (!this.parent) return undefined;
@@ -108,10 +218,10 @@ var SoupComment = function (_SoupElement) {
 
     _classCallCheck(this, SoupComment);
 
-    var _this = _possibleConstructorReturn(this, (SoupComment.__proto__ || Object.getPrototypeOf(SoupComment)).call(this, parent, previousElement, nextElement));
+    var _this2 = _possibleConstructorReturn(this, (SoupComment.__proto__ || Object.getPrototypeOf(SoupComment)).call(this, parent, previousElement, nextElement));
 
-    _this._text = text;
-    return _this;
+    _this2._text = text;
+    return _this2;
   }
 
   return SoupComment;
@@ -127,10 +237,10 @@ var SoupString = function (_SoupElement2) {
 
     _classCallCheck(this, SoupString);
 
-    var _this2 = _possibleConstructorReturn(this, (SoupString.__proto__ || Object.getPrototypeOf(SoupString)).call(this, parent, previousElement, nextElement));
+    var _this3 = _possibleConstructorReturn(this, (SoupString.__proto__ || Object.getPrototypeOf(SoupString)).call(this, parent, previousElement, nextElement));
 
-    _this2._text = text;
-    return _this2;
+    _this3._text = text;
+    return _this3;
   }
 
   return SoupString;
@@ -150,10 +260,10 @@ var SoupDoctypeString = function (_SoupString) {
 
     _classCallCheck(this, SoupDoctypeString);
 
-    var _this3 = _possibleConstructorReturn(this, (SoupDoctypeString.__proto__ || Object.getPrototypeOf(SoupDoctypeString)).call(this, text, parent, previousElement, nextElement));
+    var _this4 = _possibleConstructorReturn(this, (SoupDoctypeString.__proto__ || Object.getPrototypeOf(SoupDoctypeString)).call(this, text, parent, previousElement, nextElement));
 
-    _this3._text = text;
-    return _this3;
+    _this4._text = text;
+    return _this4;
   }
 
   return SoupDoctypeString;
@@ -174,14 +284,14 @@ var SoupTag = function (_SoupElement3) {
 
     _classCallCheck(this, SoupTag);
 
-    var _this4 = _possibleConstructorReturn(this, (SoupTag.__proto__ || Object.getPrototypeOf(SoupTag)).call(this, parent, previousElement, nextElement));
+    var _this5 = _possibleConstructorReturn(this, (SoupTag.__proto__ || Object.getPrototypeOf(SoupTag)).call(this, parent, previousElement, nextElement));
 
-    _this4.name = name;
-    _this4.contents = [];
-    _this4.attrs = attrs || {};
-    _this4.hidden = false;
-    _this4.builder = builder;
-    return _this4;
+    _this5.name = name;
+    _this5.contents = [];
+    _this5.attrs = attrs || {};
+    _this5.hidden = false;
+    _this5.builder = builder;
+    return _this5;
   }
 
   _createClass(SoupTag, [{
@@ -522,7 +632,7 @@ var JSSoup = function (_SoupTag) {
 
     _classCallCheck(this, JSSoup);
 
-    var _this5 = _possibleConstructorReturn(this, (JSSoup.__proto__ || Object.getPrototypeOf(JSSoup)).call(this, ROOT_TAG_NAME, new _builder2.default(), null));
+    var _this6 = _possibleConstructorReturn(this, (JSSoup.__proto__ || Object.getPrototypeOf(JSSoup)).call(this, ROOT_TAG_NAME, new _builder2.default(), null));
 
     var handler = new htmlparser.DefaultHandler(function (error, dom) {
       if (error) {
@@ -534,13 +644,13 @@ var JSSoup = function (_SoupTag) {
     parser.parseComplete(text);
 
     if (Array.isArray(handler.dom)) {
-      _this5._build(handler.dom);
+      _this6._build(handler.dom);
     } else {
-      _this5._build([handler.dom]);
+      _this6._build([handler.dom]);
     }
 
-    _this5.hidden = true;
-    return _this5;
+    _this6.hidden = true;
+    return _this6;
   }
 
   return JSSoup;

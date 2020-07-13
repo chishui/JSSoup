@@ -115,6 +115,27 @@ div.append(b)
 div.contents
 // [<a>1</a>, <c>3</c>, <b>2</b>]
 ```
+#### .insert(position, new Element)
+```javascript
+d.prettify('', '')
+// <d>4</d>
+div.insert(1, d)
+div.contents
+// [<a>1</a>, <d>4</d>, <b>2</b>, <c>3</c>]
+```
+#### .replaceWith(new Element)
+```javascript
+d.prettify('', '')
+// <d>4</d>
+b.replaceWith(d)
+div.contents
+// [<a>1</a>, <d>4</d>, <c>3</c>]
+
+c.string.replaceWith('new')
+div.contents
+// [<a>1</a>, <d>4</d>, <c>new</c>]
+```
+
 ### Search
 #### .findAll()
 ```javascript
