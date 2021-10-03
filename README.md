@@ -87,6 +87,16 @@ var b = a.nextSibling;
 var c = b.nextSibling;
 c.nextSibling == undefined;
 ```
+#### .previousSiblings, .nextSiblings
+```javascript
+var soup = new JSSoup(data);
+var a = soup.find("a");
+a.nextSiblings
+// [<b>2</b>, <c>3</c>]
+var c = soup.find("c");
+c.previousSiblings
+// [<a>1</a>, <b>2</b>]
+```
 #### .contents
 ```javascript
 div.contents

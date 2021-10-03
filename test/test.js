@@ -105,6 +105,12 @@ describe('sibling', function() {
     assert.equal(soup.contents[0].nextSibling, undefined);
     assert.equal(soup.contents[0].contents[0].previousSibling, undefined);
     assert.equal(soup.contents[0].contents[0].nextSibling, undefined);
+    assert.equal(soup.previousSiblings, undefined);
+    assert.equal(soup.nextSiblings, undefined);
+    assert.equal(soup.contents[0].previousSiblings, undefined);
+    assert.equal(soup.contents[0].nextSiblings, undefined);
+    assert.equal(soup.contents[0].contents[0].previousSiblings, undefined);
+    assert.equal(soup.contents[0].contents[0].nextSiblings, undefined);
     done();
   });
 
@@ -116,6 +122,14 @@ describe('sibling', function() {
     assert.equal(soup.contents[1].nextSibling.name, 'c');
     assert.equal(soup.contents[2].previousSibling.name, 'b');
     assert.equal(soup.contents[2].nextSibling, undefined);
+    assert.equal(soup.contents[0].previousSiblings, undefined);
+    assert.equal(soup.contents[0].nextSiblings[0].name, 'b');
+    assert.equal(soup.contents[0].nextSiblings[1].name, 'c');
+    assert.equal(soup.contents[1].previousSiblings[0].name, 'a');
+    assert.equal(soup.contents[1].nextSiblings[0].name, 'c');
+    assert.equal(soup.contents[2].previousSiblings[0].name, 'a');
+    assert.equal(soup.contents[2].previousSiblings[1].name, 'b');
+    assert.equal(soup.contents[2].nextSiblings, undefined);
     done();
   });
 });
