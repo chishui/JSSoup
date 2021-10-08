@@ -873,6 +873,40 @@ describe('replaceWith', function() {
     assert.equal(div.prettify('', ''), '<div><p id="p1">hello</p><p id="p2">p2</p></div>');
     done();
   });
+});
 
+describe('select', function() {
+  it('should select expected elements with combinators', function(done) {
+    var soup = new JSSoup(data);
+    var b = soup.select("* body span.one.two.three");
+    assert.equal(1, b.length);
+    assert.equal("One Two Three", b[0].text);
+    done()
+  });
 
+  it('should select expected elements with mix combinators 2', function(done) {
+    var soup = new JSSoup(data);
+    var b = soup.select("* body span.one");
+    assert.equal(2, b.length);
+    assert.equal("One", b[0].text);
+    assert.equal("One Two Three", b[1].text);
+    done()
+  });
+
+  it('should select expected elements with mix selector 2', function(done) {
+    var soup = new JSSoup(data);
+    var b = soup.select("a.sister#link1");
+    assert.equal(1, b.length);
+    assert.equal("Elsie", b[0].text);
+    done()
+  });
+});
+
+describe('selectOne', function() {
+  it('should select expected elements with combinators', function(done) {
+    var soup = new JSSoup(data);
+    var b = soup.selectOne("* body span.one");
+    assert.equal("One", b.text);
+    done()
+  });
 });
