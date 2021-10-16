@@ -3,6 +3,7 @@
   "version": "0.0.16",
   "description": "JSSoup is a BeautifulSoup style HTML parser library.",
   "main": "./dist/lib/jssoup.js",
+  "typings": "./lib/index.d.ts",
   "files": [
     "dist",
     "README.md"
