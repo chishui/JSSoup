@@ -36,7 +36,7 @@ declare module "jssoup" {
     toString(): string;
   }
 
-  type Args =
+  type Attributes =
     | string
     | string[]
     | { class: string }
@@ -65,34 +65,34 @@ declare module "jssoup" {
 
     public find(
       name?: string,
-      attrs?: Args,
+      attrs?: Attributes,
       string?: string
     ): SoupTag | undefined;
 
     /** like find_all in BeautifulSoup */
-    public findAll(name?: string, attrs?: Args, string?: string): SoupTag[];
+    public findAll(name?: string, attrs?: Attributes, string?: string): SoupTag[];
 
     public findPreviousSibling(
       name?: string,
-      attrs?: Args,
+      attrs?: Attributes,
       string?: string
     ): SoupTag | undefined;
 
     public findPreviousSiblings(
       name?: string,
-      attrs?: Args,
+      attrs?: Attributes,
       string?: string
     ): SoupTag[];
 
     public findNextSibling(
       name?: string,
-      attrs?: Args,
+      attrs?: Attributes,
       string?: string
     ): SoupTag | undefined;
 
     public findNextSiblings(
       name?: string,
-      attrs?: Args,
+      attrs?: Attributes,
       string?: string
     ): SoupTag[];
 
