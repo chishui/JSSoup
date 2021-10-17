@@ -3,7 +3,7 @@ declare module "jssoup" {
     public canBeEmptyElement(name: string): boolean;
   }
 
-  class SoupElement {
+  export class SoupElement {
     public parent?: SoupTag;
     public previousElement?: SoupTag;
     public nextElement?: SoupTag;
@@ -25,7 +25,7 @@ declare module "jssoup" {
     public replaceWith(newElement: SoupElement | string): this | undefined;
   }
 
-  class SoupString extends SoupElement {
+  export class SoupString extends SoupElement {
     constructor(
       text: string,
       parent?: SoupElement,
@@ -63,38 +63,42 @@ declare module "jssoup" {
     /** includes all elements of which current element is the ancestor of */
     public get descendants(): SoupElement[];
 
-    public find(
+    public find<T extends SoupElement>(
       name?: string,
       attrs?: Attributes,
       string?: string
-    ): SoupTag | undefined;
+    ): T | undefined;
 
     /** like find_all in BeautifulSoup */
-    public findAll(name?: string, attrs?: Attributes, string?: string): SoupTag[];
-
-    public findPreviousSibling(
+    public findAll<T extends SoupElement>(
       name?: string,
       attrs?: Attributes,
       string?: string
-    ): SoupTag | undefined;
+    ): T[];
 
-    public findPreviousSiblings(
+    public findPreviousSibling<T extends SoupElement>(
       name?: string,
       attrs?: Attributes,
       string?: string
-    ): SoupTag[];
+    ): T | undefined;
 
-    public findNextSibling(
+    public findPreviousSiblings<T extends SoupElement>(
       name?: string,
       attrs?: Attributes,
       string?: string
-    ): SoupTag | undefined;
+    ): T[];
 
-    public findNextSiblings(
+    public findNextSibling<T extends SoupElement>(
       name?: string,
       attrs?: Attributes,
       string?: string
-    ): SoupTag[];
+    ): T | undefined;
+
+    public findNextSiblings<T extends SoupElement>(
+      name?: string,
+      attrs?: Attributes,
+      string?: string
+    ): T[];
 
     public getText(separator?: string): string;
     public prettify(indent?: string, breakline?: string): string;
@@ -102,10 +106,10 @@ declare module "jssoup" {
     public append(item: SoupElement): void;
 
     /** @param expression - a CSS expression like "div > .class1"*/
-    public select(expression: string): SoupTag[];
+    public select<T extends SoupElement>(expression: string): T[];
 
     /** @param expression - a CSS expression like "div > .class1"*/
-    public selectOne(expression: string): SoupTag | undefined;
+    public selectOne<T extends SoupElement>(expression: string): T | undefined;
   }
 
   export default class JSSoup extends SoupTag {
