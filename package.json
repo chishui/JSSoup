@@ -3,6 +3,7 @@
   "version": "0.0.16",
   "description": "JSSoup is a BeautifulSoup style HTML parser library.",
   "main": "./dist/lib/jssoup.js",
+  "typings": "./dist/lib/index.d.ts",
   "files": [
     "dist",
     "README.md"
@@ -12,7 +13,7 @@
     "init": "mkdir dist && mkdir dist/lib",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean && npm run init",
-    "build": "babel ./lib/*.js -d dist/lib"
+    "build": "babel ./lib/*.js -d dist/lib; cp ./lib/index.d.ts ./dist/lib/index.d.ts"
   },
   "repository": {
     "type": "git",
